@@ -42,11 +42,11 @@ This tool will make it simple by automating the process:
 - example.com (make sure to include http:// or https://!)
 ## Final output:
 - **Output directory**: All results are saved in the emails directory.
--- E.g, if you scrape `https://example.com`, you’ll get:
+ - E.g, if you scrape `https://example.com`, you’ll get:
     ```bash
     emails/example.com/emails.csv
     ```
 - **Results**: A CSV file containing:
--- **Email**: The email address found.
--- **Page Found**: The page where the email was located.
+ - **Email**: The email address found.
+ - **Page Found**: The page where the email was located.
 - **At the end**: The tool tells you how many emails it found at the end of the run.
