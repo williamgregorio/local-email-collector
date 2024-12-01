@@ -34,4 +34,24 @@ class EmailScraper:
         email_regex = r'[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+'
         return re.findall(email_regex, text)
 
+    def spider_crawl_page(self, url):
+        """
+        Web crawls one page, finds anchors and extracts emails.
+        """
+        if url in self.visited_urls:
+            return
+        self.visited_urls.add(url)
+
+        # something is up with my personal config if fails on indentation, this is the reminder else del on this line dev
+        try:
+            response = requests.get(url, headers=get_headers(), timeout=7)
+            soup = BeautifulSoup(response.text, 'html.parser')
+            
+            # Extracts emails
+            found_emails = self.find_emails(response.text)
+            for email in found_emails:
+                self.emails.append({'email': email, 'page_found': url})
+
+            # Find anchors
+
 
