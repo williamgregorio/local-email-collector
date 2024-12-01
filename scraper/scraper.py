@@ -4,7 +4,7 @@ import requests
 
 from bs4 import BeautifulSoup
 from urllib.parse import urljoin, urlparse
-from scraper.utils import get_headers, check_robots
+from scraper.utils import get_headers, check_robots, is_scraping_allowed, parse_robots_rules
 
 class EmailScraper:
     def __init__(self, domain):
@@ -35,13 +35,19 @@ class EmailScraper:
         email_regex = r'[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+'
         return re.findall(email_regex, text)
 
-    def spider_crawl_page(self, url):
+    def spider_crawl_page(self, url, disallowed_paths):
         """
         Web crawls one page, extract emails and finds anchors.
         """
         if url in self.visited_urls:
             return
         self.visited_urls.add(url)
+
+        # Checks if path is allowed
+        path = urlparse(url).path
+        if not is_scraping_allowed(self.domain, path, disallowed_paths):
+            print(f"Skipping {url} due to robots.txt restrictions.")
+            return
 
         try:
             response = requests.get(url, headers=get_headers(), timeout=7)
@@ -56,7 +62,7 @@ class EmailScraper:
             for a_tag in soup.find_all('a', href=True):
                 anchor = urljoin(url, a_tag['href'])
                 if self.is_domain_same(anchor):
-                    self.spider_crawl_page(anchor)
+                    self.spider_crawl_page(anchor, disallowed_paths)
         except Exception as e:
             print(f"Error in web crawling {url}: {e}")
 
@@ -72,12 +78,13 @@ class EmailScraper:
 
     def run(self):
         """
-        Runs the scraper, by respecting robots.txt if found.
+        Runs the scraper, by respecting robots.txt when found.
         """
-        if not check_robots(self.domain):
-            print(f"Will not continue due to robots.txt restrictions as Disallowed.")
+        disallowed_paths = check_robots(self.domain)
+        if '/' in disallowed_paths:
+            print(f"Will not continue, due to robots.txt global restrictions.")
             return
-        self.spider_crawl_page(self.domain) 
+        self.spider_crawl_page(self.domain, disallowed_paths) 
         self.save_to_csv()
         print(f"Email scraping complete. Found {len(self.emails)} emails.")
         print(f"Emails was saved to {self.output_dir}/emails.csv")
