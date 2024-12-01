@@ -20,3 +20,18 @@ class EmailScraper:
         base_dir = 'emails'
         domain_dir = os.path.join(base_dir, urlparse(self.domain).netloc)
         os.makedirs(domain_dir, exists_ok=True)
+
+    def is_domain_same(self, url):
+        """
+        Checks if URL is connected to the same domain.
+        """
+        return urlparse(url).netloc.endswith(urlparse(self.domain).netloc)
+
+    def find_emails(self, text):
+        """
+        It will find emails in a block of text using this regex.
+        """
+        email_regex = r'[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+'
+        return re.findall(email_regex, text)
+
+
