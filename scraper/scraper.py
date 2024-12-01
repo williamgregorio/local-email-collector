@@ -60,6 +60,13 @@ class EmailScraper:
         except Exception as e:
             print(f"Error in web crawling {url}: {e}")
 
-
-
+    def save_to_csv(self):
+        """
+        Will save emails to CSV in a domain name specific directory.
+        """
+        output_file = os.path.join(self.output_dir, 'emails.csv')
+        with open(output_file, 'w', newline='', encoding='utf-8') as csv_file:
+            writer = csv.DictWriter(csv_file, fieldnames=['email', 'page_found'])
+            writer.writerheader()
+            writer.writerows(self.emails)
 
