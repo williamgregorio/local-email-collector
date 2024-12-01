@@ -20,7 +20,7 @@ This tool will make it simple by automating the process:
    ```bash
    git clone https://github.com/williamgregorio/local-email-collector.git
    cd local-email-collector
-   python -m venv venv
+   python -m venv .venv
    source .venv/bin/activate
    ```
 ### 2. Install dependencies
