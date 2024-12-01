@@ -20,6 +20,21 @@ def parse_robots_rules(robots_txt, user_agent="*"):
     rules = {}
     current_user_agent = None
 
+    for line in robots_txt.splitlines():
+        line = line.strip()
+        if not line or line.startswith("#"):
+            continue
+        if line.lower().startswith("user-agent:"):
+            current_user_agent = line.split(":")[1].strip()
+        elif current_user_agent == user_agent or current_user_agent == "*":
+            # we shall test this, I dont have much hope for this, but if nice, del line once true.
+            if line.lower().startswith("disallow:"):
+                path = line.split(":", 1)[1].strip()
+                if current_user_agent not in rules:
+                    rules[current_user_agent] = []
+                rules[current_user_agent].append(path)
+    print(rules.get(user_agent, []) + rules.get("*", [])) #del (optional)
+    return rules.get(user_agent, []) + rules.get("*", [])
 
 def get_headers():
     """
