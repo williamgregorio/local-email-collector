@@ -51,9 +51,9 @@ def check_robots(domain):
     try:
         response = requests.get(robots_url, timeout=7)
         if response.status_code == 200:
-            if 'Disallow: /' in response.text:
-                print(f"Crawling is disallowed for {domain} by robots.txt")
-                return False
-        return True
+            disallowed_paths = parse_robots_rules(response.text)
+            return disallowed_paths
+        return []
     except Exception as e:
         print(f"Failed to get robots.txt for {domain}: {e}")
+        return []
