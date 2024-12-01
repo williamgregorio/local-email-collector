@@ -67,7 +67,7 @@ class EmailScraper:
         output_file = os.path.join(self.output_dir, 'emails.csv')
         with open(output_file, 'w', newline='', encoding='utf-8') as csv_file:
             writer = csv.DictWriter(csv_file, fieldnames=['email', 'page_found'])
-            writer.writerheader()
+            writer.writeheader()
             writer.writerows(self.emails)
 
     def run(self):
