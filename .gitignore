@@ -1,3 +1,10 @@
+# general env names
 .venv
 .env
+
+# output must stay in your machine
+/emails/
+
+# py cache
+scraper/__pycache__/
 
