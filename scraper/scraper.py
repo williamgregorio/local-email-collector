@@ -70,3 +70,14 @@ class EmailScraper:
             writer.writerheader()
             writer.writerows(self.emails)
 
+    def run(self):
+        """
+        Runs the scraper, by respecting robots.txt if found.
+        """
+        if not check_robots(self.domain):
+            print(f"Will not continue due to robots.txt restrictions as Disallowed.")
+            return
+        self.spider_crawl_page(self.domain) 
+        self.save_to_csv()
+        print(f"Email scraping complete. Found {len(self.emails)} emails.")
+        print(f"Emails was saved to {self.output_dir}/emails.csv")
