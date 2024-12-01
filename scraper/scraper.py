@@ -53,5 +53,13 @@ class EmailScraper:
                 self.emails.append({'email': email, 'page_found': url})
 
             # Find anchors
+            for a_tag in soup.find_all('a', href=True):
+                anchor = urljoin(url, a_tag['href'])
+                if self.is_domain_same(anchor):
+                    self.spider_crawl_page(anchor)
+        except Exception as e:
+            print(f"Error in web crawling {url}: {e}")
+
+
 
 
