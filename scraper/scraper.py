@@ -19,7 +19,8 @@ class EmailScraper:
         """
         base_dir = 'emails'
         domain_dir = os.path.join(base_dir, urlparse(self.domain).netloc)
-        os.makedirs(domain_dir, exists_ok=True)
+        os.makedirs(domain_dir, exist_ok=True)
+        return domain_dir
 
     def is_domain_same(self, url):
         """
@@ -36,13 +37,12 @@ class EmailScraper:
 
     def spider_crawl_page(self, url):
         """
-        Web crawls one page, finds anchors and extracts emails.
+        Web crawls one page, extract emails and finds anchors.
         """
         if url in self.visited_urls:
             return
         self.visited_urls.add(url)
 
-        # something is up with my personal config if fails on indentation, this is the reminder else del on this line dev
         try:
             response = requests.get(url, headers=get_headers(), timeout=7)
             soup = BeautifulSoup(response.text, 'html.parser')
