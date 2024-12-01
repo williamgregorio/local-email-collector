@@ -12,6 +12,15 @@ def is_scraping_allowed(domain, path, disallowed_paths):
             return False
     return True
 
+def parse_robots_rules(robots_txt, user_agent="*"):
+    """
+    Parses the robots.txt for the specified user-agent.
+    Returns a list of disallowed paths.
+    """
+    rules = {}
+    current_user_agent = None
+
+
 def get_headers():
     """
     Generates a 'random' user agent header....
