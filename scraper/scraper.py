@@ -1,10 +1,12 @@
 import os
 import csv
 import requests
+import re
 
 from bs4 import BeautifulSoup
 from urllib.parse import urljoin, urlparse
 from scraper.utils import get_headers, check_robots, is_scraping_allowed, parse_robots_rules
+from collections import deque
 
 class EmailScraper:
     def __init__(self, domain):
@@ -35,36 +37,40 @@ class EmailScraper:
         email_regex = r'[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+'
         return re.findall(email_regex, text)
 
-    def spider_crawl_page(self, url, disallowed_paths):
+    def spider_crawl_page(self, start_url, disallowed_paths):
         """
-        Web crawls one page, extract emails and finds anchors.
+        Web crawls pages using (BFS), makes sure pages are visited once, extract emails and finds anchors.
         """
-        if url in self.visited_urls:
-            return
-        self.visited_urls.add(url)
+        queue = deque([start_url])
 
-        # Checks if path is allowed
-        path = urlparse(url).path
-        if not is_scraping_allowed(self.domain, path, disallowed_paths):
-            print(f"Skipping {url} due to robots.txt restrictions.")
-            return
+        while queue:
+            url = queue.popleft()
+            if url in self.visited_urls:
+                continue
+            self.visited_urls.add(url)
 
-        try:
-            response = requests.get(url, headers=get_headers(), timeout=7)
-            soup = BeautifulSoup(response.text, 'html.parser')
+            # Checks if path is allowed
+            path = urlparse(url).path
+            if not is_scraping_allowed(self.domain, path, disallowed_paths):
+                print(f"Skipping {url} due to robots.txt restrictions.")
+                continue
+
+            try:
+                response = requests.get(url, headers=get_headers(), timeout=7)
+                soup = BeautifulSoup(response.text, 'html.parser')
             
-            # Extracts emails
-            found_emails = self.find_emails(response.text)
-            for email in found_emails:
-                self.emails.append({'email': email, 'page_found': url})
+                # Extracts emails
+                found_emails = self.find_emails(response.text)
+                for email in found_emails:
+                    self.emails.append({'email': email, 'page_found': url})
 
-            # Find anchors
-            for a_tag in soup.find_all('a', href=True):
-                anchor = urljoin(url, a_tag['href'])
-                if self.is_domain_same(anchor):
-                    self.spider_crawl_page(anchor, disallowed_paths)
-        except Exception as e:
-            print(f"Error in web crawling {url}: {e}")
+                # Find anchors
+                for a_tag in soup.find_all('a', href=True):
+                    anchor = urljoin(url, a_tag['href'])
+                    if self.is_domain_same(anchor):
+                        self.spider_crawl_page(anchor, disallowed_paths)
+            except Exception as e:
+                print(f"Error in web crawling {url}: {e}")
 
     def save_to_csv(self):
         """
