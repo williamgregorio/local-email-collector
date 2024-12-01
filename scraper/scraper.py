@@ -2,11 +2,15 @@ import os
 import csv
 import requests
 import re
+import logging
 
 from bs4 import BeautifulSoup
 from urllib.parse import urljoin, urlparse
 from scraper.utils import get_headers, check_robots, is_scraping_allowed, parse_robots_rules
 from collections import deque
+
+# For logging actively
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 class EmailScraper:
     def __init__(self, domain):
@@ -48,6 +52,7 @@ class EmailScraper:
             if url in self.visited_urls:
                 continue
             self.visited_urls.add(url)
+            logging.info(f"Visting: {url}")
 
             # Checks if path is allowed
             path = urlparse(url).path
