@@ -1,6 +1,16 @@
 import requests
+import re
 from fake_useragent import UserAgent
 from urllib.parse import urljoin
+
+def is_scraping_allowed(domain, path, disallowed_paths):
+    """
+    Will check the specific path is allowed to be scraped based on disallowed paths.
+    """
+    for disallowed_path in disallowed_paths:
+        if path.startswith(disallowed_path):
+            return False
+    return True
 
 def get_headers():
     """
